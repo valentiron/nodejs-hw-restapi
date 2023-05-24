@@ -2,7 +2,7 @@ const express = require("express");
 const Joi = require("joi");
 const contacs = require("../../models/contacts");
 const { nanoid } = require("nanoid");
-const { HttpError } = require("../../heplers");
+const { HttpError } = require("../../helpers");
 const { addSchema } = require("../../middlewares");
 
 const router = express.Router();
