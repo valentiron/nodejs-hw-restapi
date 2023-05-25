@@ -1,5 +1,7 @@
-const addSchema = require('./validateContact')
+const validateContact = require('./validateContact')
+const isValidId = require('./isValidId')
 
 module.exports = {
-    addSchema,
+    validateContact,
+    isValidId,
 }

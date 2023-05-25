@@ -1,9 +1,14 @@
-const Joi = require("joi");
+const {HttpError} = require('../helpers')
 
-const addSchema = Joi.object({
-    name: Joi.string().required(),
-    email: Joi.string().required(),
-    phone: Joi.string().required(),
-  });
+const validateContact = schema =>{
+    const func = (req, res, next)=>{
+        const {error} = schema.validate(req.body)
+        if (error) {
+            next(HttpError(400, error.message))
+        }
+        next()
+    }
+    return func
+}
 
-  module.exports = addSchema;
+module.exports = validateContact;
