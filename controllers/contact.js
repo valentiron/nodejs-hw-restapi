@@ -1,40 +1,33 @@
 const { Contact } = require("../models/contact");
 
-const { HttpError } = require("../helpers");
+const { HttpError, ctrlWrapper } = require("../helpers");
 
 const { schemas } = require("../models/contact");
 
 const getAllContacts = async (req, res, next) => {
-  try {
-    const result = await Contact.find();
-    res.json(result);
-  } catch (error) {
-    next(error);
-  }
+  const result = await Contact.find({}, "-createdAt -updatedAt");
+  res.json(result);
 };
 
 const getContactById = async (req, res, next) => {
   const { contactId } = req.params;
-  try {
-    const result = await Contact.findById(contactId);
-    if (!result) throw HttpError(404, "Not Found");
-    res.json(result);
-  } catch (error) {
-    next(error);
+
+  const result = await Contact.findById(contactId);
+  if (!result) {
+    throw HttpError(404, "Not Found");
   }
+
+  res.json(result);
 };
 
 const addContact = async (req, res, next) => {
-  try {
-    const { error } = schemas.addSchema.validate(req.body);
-    if (error) {
-      throw HttpError(400, "missing required name field");
-    }
-    const contact = await Contact.create(req.body);
-    res.status(201).json(contact);
-  } catch (error) {
-    next(error);
+  const { error } = schemas.addSchema.validate(req.body);
+  if (error) {
+    throw HttpError(400, "missing required name field");
   }
+
+  const contact = await Contact.create(req.body);
+  res.status(201).json(contact);
 };
 
 const removeContactById = async (req, res, next) => {
@@ -53,38 +46,33 @@ const removeContactById = async (req, res, next) => {
 };
 
 const updateContactById = async (req, res, next) => {
-  try {
-    const { contactId } = req.params;
-    const data = await Contact.findByIdAndUpdate(contactId, req.body, {
-      new: true, //поверне оновлений об.єкт
-    });
+  const { contactId } = req.params;
+  const data = await Contact.findByIdAndUpdate(contactId, req.body, {
+    new: true, //поверне оновлений об.єкт
+  });
 
-    if (!data) throw HttpError(400, "missing fields");
-    res.status(200).json(data);
-  } catch (error) {
-    next(error);
+  if (!data) {
+    throw HttpError(400, "missing fields");
   }
+  res.status(200).json(data);
 };
 
-const updateStatusContact  = async (req, res, next) => {
-    try {
-      const { contactId } = req.params;
-      const data = await Contact.findByIdAndUpdate(contactId, req.body, {
-        new: true, //поверне оновлений об.єкт
-      });
-  
-      if (!data) throw HttpError(400, "missing fields favorite");
-      res.status(200).json(data);
-    } catch (error) {
-      next(error);
-    }
-  };
+const updateStatusContact = async (req, res, next) => {
+  const { contactId } = req.params;
+  const data = await Contact.findByIdAndUpdate(contactId, req.body, {
+    new: true, //поверне оновлений об`єкт
+  });
+  if (!data) {
+    throw HttpError(400, "missing fields favorite");
+  }
+  res.status(200).json(data);
+};
 
 module.exports = {
-  getAllContacts,
-  getContactById,
-  addContact,
-  removeContactById,
-  updateContactById,
-  updateStatusContact,
+  getAllContacts: ctrlWrapper(getAllContacts),
+  getContactById: ctrlWrapper(getContactById),
+  addContact: ctrlWrapper(addContact),
+  removeContactById: ctrlWrapper(removeContactById),
+  updateContactById: ctrlWrapper(updateContactById),
+  updateStatusContact: ctrlWrapper(updateStatusContact),
 };

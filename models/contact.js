@@ -1,4 +1,3 @@
-const { boolean } = require("joi");
 const { Schema, model } = require("mongoose");
 const { handleMongooseError } = require("../helpers");
 const Joi = require("joi");
@@ -18,7 +17,7 @@ const contactSchema = new Schema({
     type: Boolean,
     default: false,
   },
-});
+}, {versionKey: false, timestamps: true});
 
 contactSchema.post("save", handleMongooseError);
 
