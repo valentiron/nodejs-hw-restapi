@@ -4,12 +4,15 @@ const { HttpError, ctrlWrapper } = require("../helpers");
 
 const { schemas } = require("../models/contact");
 
-const getAllContacts = async (req, res, next) => {
-  const result = await Contact.find({}, "-createdAt -updatedAt");
+const getAllContacts = async (req, res) => {
+  const {_id:owner} = req.user;
+  const {page = 1, limit = 10} = req.query;
+  const skip = (page - 1) * limit
+  const result = await Contact.find({owner}, "-createdAt -updatedAt", {skip, limit}).populate("owner","email");
   res.json(result);
 };
 
-const getContactById = async (req, res, next) => {
+const getContactById = async (req, res) => {
   const { contactId } = req.params;
 
   const result = await Contact.findById(contactId);
@@ -20,18 +23,20 @@ const getContactById = async (req, res, next) => {
   res.json(result);
 };
 
-const addContact = async (req, res, next) => {
+const addContact = async (req, res) => {
   const { error } = schemas.addSchema.validate(req.body);
   if (error) {
     throw HttpError(400, "missing required name field");
   }
 
-  const contact = await Contact.create(req.body);
+  const{_id:owner} = req.user;
+
+  const contact = await Contact.create({...req.body, owner});
   res.status(201).json(contact);
 };
 
-const removeContactById = async (req, res, next) => {
-  try {
+const removeContactById = async (req, res) => {
+
     const { contactId } = req.params;
     const result = await Contact.findByIdAndRemove(contactId);
     if (!result) {
@@ -40,12 +45,9 @@ const removeContactById = async (req, res, next) => {
     res.json({
       message: "Delete success",
     });
-  } catch (error) {
-    next(error);
-  }
 };
 
-const updateContactById = async (req, res, next) => {
+const updateContactById = async (req, res) => {
   const { contactId } = req.params;
   const data = await Contact.findByIdAndUpdate(contactId, req.body, {
     new: true, //поверне оновлений об.єкт
@@ -57,7 +59,7 @@ const updateContactById = async (req, res, next) => {
   res.status(200).json(data);
 };
 
-const updateStatusContact = async (req, res, next) => {
+const updateStatusContact = async (req, res) => {
   const { contactId } = req.params;
   const data = await Contact.findByIdAndUpdate(contactId, req.body, {
     new: true, //поверне оновлений об`єкт
@@ -68,6 +70,8 @@ const updateStatusContact = async (req, res, next) => {
   res.status(200).json(data);
 };
 
+
+
 module.exports = {
   getAllContacts: ctrlWrapper(getAllContacts),
   getContactById: ctrlWrapper(getContactById),
@@ -76,3 +80,4 @@ module.exports = {
   updateContactById: ctrlWrapper(updateContactById),
   updateStatusContact: ctrlWrapper(updateStatusContact),
 };
+
