@@ -71,7 +71,6 @@ const updateStatusContact = async (req, res) => {
 };
 
 
-
 module.exports = {
   getAllContacts: ctrlWrapper(getAllContacts),
   getContactById: ctrlWrapper(getContactById),
