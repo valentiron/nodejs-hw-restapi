@@ -22,10 +22,13 @@ const userSchema = new Schema(
     },
     token: { 
       type: String, 
-      default: "" 
+      default: "" ,
   },
-  },
-  { versionKey: false, timestamps: true }
+    avatarURL: {
+      type:String,
+      required: true,
+    }
+}, { versionKey: false, timestamps: true }
 );
 
 userSchema.post("save", handleMongooseError);
