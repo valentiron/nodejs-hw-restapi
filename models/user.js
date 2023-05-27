@@ -20,37 +20,51 @@ const userSchema = new Schema(
       enum: ["starter", "pro", "business"],
       default: "starter",
     },
-    token: { 
-      type: String, 
-      default: "" ,
-  },
+    token: {
+      type: String,
+      default: "",
+    },
     avatarURL: {
-      type:String,
+      type: String,
       required: true,
-    }
-}, { versionKey: false, timestamps: true }
+    },
+    verify: {
+      type: Boolean,
+      default: false,
+    },
+    verificationCode: {
+      type: String,
+      default: "",
+    },
+  },
+  { versionKey: false, timestamps: true }
 );
 
 userSchema.post("save", handleMongooseError);
 
 const registerSchema = Joi.object({
-    email: Joi.string().pattern(emailRegexp).required(),
-    password: Joi.string().required()
-})
+  email: Joi.string().pattern(emailRegexp).required(),
+  password: Joi.string().required(),
+});
 
 const loginSchema = Joi.object({
-    email: Joi.string().pattern(emailRegexp).required(),
-    password: Joi.string().required()
-})
+  email: Joi.string().pattern(emailRegexp).required(),
+  password: Joi.string().required(),
+});
+
+const emailSchema = Joi.object({
+  email: Joi.string().pattern(emailRegexp).required(),
+});
 
 const schemas = {
-    registerSchema,
-    loginSchema,
-  };
+  registerSchema,
+  loginSchema,
+  emailSchema,
+};
 
-const User = model("user", userSchema)
+const User = model("user", userSchema);
 
-  module.exports = {
-    User,
-    schemas,
-}
+module.exports = {
+  User,
+  schemas,
+};
